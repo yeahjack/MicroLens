@@ -4,20 +4,20 @@ from transformers import VideoMAEFeatureExtractor, VideoMAEModel, VideoMAEConfig
 import torch.nn as nn
 import json
 
-device = torch.device('cuda:4' if torch.cuda.is_available() else "cpu") 
+device = torch.device('cuda' if torch.cuda.is_available() else "cpu") 
 
 class LMDB_VIDEO:
     def __init__(self, video):
         self.video = video.tobytes()
 
 frame_no = 5
-video_lmdb_path = 'D:/video_frames_100k.lmdb'
+video_lmdb_path = '/hpc2hdd/home/yxu409/MicroLens/Dataset/Microlens-50k/MicroLens-50k_frames_interval_1_number_5_lmdb'
 
 video_number = 19738 # to input
 
 avg_pool = nn.AdaptiveAvgPool2d((1, 768))
 configuration = VideoMAEConfig(num_frames=frame_no)
-video_model = VideoMAEModel.from_pretrained('E:/MM_DATASET/DATA_GENERATION/videomae_base', config = configuration).to(device)
+video_model = VideoMAEModel.from_pretrained('/hpc2hdd/home/yxu409/MicroLens/MicroLens/root_models/pretrained_models/videomae-base', config = configuration).to(device)
 
 env = lmdb.open(video_lmdb_path, subdir=os.path.isdir(video_lmdb_path),
                         readonly=True, lock=False, readahead=False, meminit=False)
@@ -25,6 +25,7 @@ env = lmdb.open(video_lmdb_path, subdir=os.path.isdir(video_lmdb_path),
 all_scoring = torch.tensor([]).to(torch.float32).to('cpu')
 with torch.no_grad():
     with env.begin() as txn:
+
         for i in range(1, video_number+1, 100):
             if i != (video_number-video_number%100+1):
                 all_videos = np.zeros((100, 5, 3, 224, 224))
@@ -35,6 +36,8 @@ with torch.no_grad():
             k = 0
             for j in range(i, i+max_step):
                 vdo = pickle.loads(txn.get(str(j).encode()))
+                # vdo = pickle.loads(txn.get(f"{j}.mp4".encode()))
+                # import ipdb; ipdb.set_trace()
                 vdo = np.frombuffer(vdo.video, dtype=np.float32).reshape(frame_no, 3, 224, 224) 
                 all_videos[k] = vdo
                 k += 1
@@ -58,9 +61,9 @@ print(all_scoring.shape)
 feature_json = {}
 for i in range(all_scoring.shape[0]):
     feature_json[str(i+1)] = all_scoring[i].tolist() # Convert NumPy array to list
-with open('MicroLens-100k_video_features_VideoMAE.json', 'w') as f:
+with open('MicroLens-50k_video_features_VideoMAE.json', 'w') as f:
     json.dump(feature_json, f)
 
-with open('MicroLens-100k_video_features_VideoMAE.json', 'r') as f:
+with open('MicroLens-50k_video_features_VideoMAE.json', 'r') as f:
     feature_json = json.load(f)
 print(len(feature_json))

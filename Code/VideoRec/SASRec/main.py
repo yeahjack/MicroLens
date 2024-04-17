@@ -114,7 +114,8 @@ def train(args, model_dir, Log_file, Log_screen, start_time, local_rank):
             # vit of clip
             image_model = CLIPVisionModel.from_pretrained(image_model_load)
 
-        elif 'vit-base-mae' in args.image_model_load:
+        # elif 'vit-base-mae' in args.image_model_load:
+        elif 'vit-mae-base' in args.image_model_load:
             Log_file.info('load MAE model...')
             image_model_load = os.path.abspath(os.path.join(args.root_model_dir, 'pretrained_models', args.image_model_load))
             # mae
@@ -557,7 +558,6 @@ def train(args, model_dir, Log_file, Log_screen, start_time, local_rank):
                 Log_file.info('Ed: {}, batch loss: {:.3f}, sum loss: {:.3f}, align: {:.3f}, uniform: {:.3f}'.format(
                     batch_index * args.batch_size, loss.data / batch_index, loss.data, align / batch_index, uniform / batch_index))
             batch_index += 1
-
         if dist.get_rank() == 0 and now_epoch % args.save_step == 0:
             save_model(now_epoch, model, model_dir, optimizer, torch.get_rng_state(), torch.cuda.get_rng_state(), Log_file)   # new
 
@@ -632,9 +632,11 @@ def eval(now_epoch, max_epoch, early_stop_epoch, max_eval_value, early_stop_coun
 
 def main():
     args = parse_args()
-
+    print(args)
+    #print("test here")
     # ============== Distributed Computation Config ==============
     local_rank = int(os.environ['RANK'])
+    #print('local_rank:', local_rank)
     torch.cuda.set_device(local_rank)
     dist.init_process_group(backend='nccl')
     

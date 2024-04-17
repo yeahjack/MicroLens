@@ -35,7 +35,8 @@ class Model(torch.nn.Module):
                 self.image_encoder = ResnetEncoder(image_net=image_net, args=args)
             elif 'vit-b-32-clip' in args.image_model_load:
                 self.image_encoder = VitEncoder(image_net=image_net, args=args)
-            elif 'vit-base-mae' in args.image_model_load:
+            # elif 'vit-base-mae' in args.image_model_load:
+            elif 'vit-mae-base' in args.image_model_load:
                 self.image_encoder = MaeEncoder(image_net=image_net, args=args)
             elif 'swin_tiny' in args.image_model_load or 'swin_base' in args.image_model_load:
                 self.image_encoder = SwinEncoder(image_net=image_net, args=args)

@@ -1,17 +1,18 @@
 import os
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-root_data_dir = '/home/public/data/scale_datasets/'
-root_model_dir = '/home/public/data/'
+root_data_dir = ' /hpc2hdd/home/yxu409/MicroLens/Dataset/'
+root_model_dir = '/hpc2hdd/home/yxu409/MicroLens/MicroLens/root_models/'
 
-dataset = 'core_datasets'
-tag = '10wu'
-behaviors = tag + '_ks_pairs.tsv'
-text_data = tag + '_ks_title.csv'
-image_data = tag + '_ks_cover.lmdb'
+dataset = 'Microlens-50k'
+tag = 'MicroLens-50k'
+behaviors = tag + '_pairs.tsv'
+text_data = tag + '_title.csv'
+image_data = tag + '_covers.lmdb'
 frame_interval = 1
 frame_no = 5
-video_data = tag + '_ks_fi'+str(frame_interval)+'_fn'+str(frame_no)+'_frames.lmdb'
+# video_data = tag + '_ks_fi'+str(frame_interval)+'_fn'+str(frame_no)+'_frames.lmdb'
+video_data = 'MicroLens-50k_frames_interval_1_number_5.lmdb'
 max_seq_len_list = [10]
 
 logging_num = 10
@@ -19,7 +20,7 @@ testing_num = 1
 save_step = 1
 
 image_resize = 224
-max_video_no = 34321 # 34321 for 10wu, 91717 for 100wu
+max_video_no = 19738 # 34321 for 10wu, 91717 for 100wu
 
 text_model_load = 'bert-base-uncased' # 'bert-base-cn' 
 image_model_load = 'vit-base-mae' # 'vit-b-32-clip'
@@ -47,13 +48,13 @@ slowfast16x8-101: 9999/120 576/120 153/25 0/15 0/15-scratch
 '''
 video_model_load = 'x3d-s' # mvit-base-32x3 slowfast-50 slowfast16x8-101
 video_freeze_paras_before = 0 # 326 270 576
-batch_size_list = [20] # 30 120 120
+batch_size_list = [40] # 30 120 120
 
 mode = 'train' # train test
 item_tower = 'video' # modal, text, image, video, id
 
-epoch = 50
-load_ckpt_name = 'None'
+epoch = 100
+load_ckpt_name = 'epoch-50.pt'
 # load_ckpt_name = 'epoch-47.pt'
 
 weight_decay = 0.1
@@ -84,9 +85,27 @@ for batch_size in batch_size_list:
                         item_tower, batch_size, embedding_dim, lr,
                         drop_rate, weight_decay, max_seq_len)
 
-                run_py = "CUDA_VISIBLE_DEVICES='0,1,2,3' \
-                        /opt/anaconda3/envs/torch1.8/bin/python -m torch.distributed.launch \
-                        --nproc_per_node 4 --master_port 128 main.py \
+                # run_py = "CUDA_VISIBLE_DEVICES='0,1,2,3' \
+                #         /opt/anaconda3/envs/torch1.8/bin/python -m torch.distributed.launch \
+                #         --nproc_per_node 4 --master_port 128 main.py \
+                #         --root_data_dir {} --root_model_dir {} --dataset {} --behaviors {} --text_data {}  --image_data {} --video_data {}\
+                #         --mode {} --item_tower {} --load_ckpt_name {} --label_screen {} --logging_num {} --save_step {}\
+                #         --testing_num {} --weight_decay {} --drop_rate {} --batch_size {} --lr {} --embedding_dim {}\
+                #         --image_resize {} --image_model_load {} --text_model_load {} --video_model_load {} --epoch {} \
+                #         --text_freeze_paras_before {} --image_freeze_paras_before {} --video_freeze_paras_before {} --max_seq_len {} --frame_interval {} --frame_no {}\
+                #         --text_fine_tune_lr {} --image_fine_tune_lr {} --video_fine_tune_lr {}\
+                #         --scheduler {} --scheduler_gap {} --scheduler_alpha {} --max_video_no {}\
+                #         --version {}".format(
+                #         root_data_dir, root_model_dir, dataset, behaviors, text_data, image_data, video_data,
+                #         mode, item_tower, load_ckpt_name, label_screen, logging_num, save_step,
+                #         testing_num,weight_decay, drop_rate, batch_size, lr, embedding_dim,
+                #         image_resize, image_model_load, text_model_load, video_model_load, epoch,
+                #         text_freeze_paras_before, image_freeze_paras_before, video_freeze_paras_before, max_seq_len, frame_interval, frame_no,
+                #         text_fine_tune_lr, image_fine_tune_lr, video_fine_tune_lr, 
+                #         scheduler, scheduler_gap, scheduler_alpha, max_video_no,
+                #         version)
+                run_py = "CUDA_VISIBLE_DEVICES='0,1,2,3,4,5' \
+                        torchrun --nproc_per_node=1 --master_port 1128 main.py \
                         --root_data_dir {} --root_model_dir {} --dataset {} --behaviors {} --text_data {}  --image_data {} --video_data {}\
                         --mode {} --item_tower {} --load_ckpt_name {} --label_screen {} --logging_num {} --save_step {}\
                         --testing_num {} --weight_decay {} --drop_rate {} --batch_size {} --lr {} --embedding_dim {}\
