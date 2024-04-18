@@ -1,4 +1,4 @@
-# MicroLens: A Content-Driven Micro-Video Recommendation Dataset at Scale
+# [MicroLens: A Content-Driven Micro-Video Recommendation Dataset at Scale](https://arxiv.org/pdf/2309.15379.pdf)
 
 <a href="https://arxiv.org/pdf/2309.15379.pdf" alt="paper"><img src="https://img.shields.io/badge/ArXiv-2309.06789-FAA41F.svg?style=flat" /></a>
 <a href="https://github.com/westlake-repl/MicroLens/blob/master/MicroLens_DeepMind_Talk.pdf" alt="Talk"><img src="https://img.shields.io/badge/Talk-DeepMind-orange" /></a> 
@@ -74,7 +74,7 @@ If you use our dataset, code or find MicroLens useful in your work, please cite 
 }
 ```
 
-> :warning: **Caution**: It's prohibited to privately modify the dataset and offer secondary downloads. If you've made alterations to the dataset in your work, you are encouraged to open-source the data processing code, so others can benefit from your methods. Or notify us of your new dataset so we can put it on this Github with your paper.
+> :warning: **Caution**: It's prohibited to privately modify the dataset and then offer secondary downloads. If you've made alterations to the dataset in your work, you are encouraged to open-source the data processing code, so others can benefit from your methods. Or notify us of your new dataset so we can put it on this Github with your paper.
 
 
 # Code
