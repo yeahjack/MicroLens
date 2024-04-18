@@ -3,6 +3,7 @@ import numpy as np
 from transformers import VideoMAEFeatureExtractor, VideoMAEModel, VideoMAEConfig
 import torch.nn as nn
 import json
+from tqdm import tqdm
 
 device = torch.device('cuda' if torch.cuda.is_available() else "cpu") 
 
@@ -11,7 +12,7 @@ class LMDB_VIDEO:
         self.video = video.tobytes()
 
 frame_no = 5
-video_lmdb_path = '/hpc2hdd/home/yxu409/MicroLens/Dataset/Microlens-50k/MicroLens-50k_frames_interval_1_number_5_lmdb'
+video_lmdb_path = '/hpc2hdd/home/yxu409/MicroLens/Dataset/Microlens-100k/MicroLens-100k_frames_interval_1_number_5_lmdb/'
 
 video_number = 19738 # to input
 
@@ -26,7 +27,7 @@ all_scoring = torch.tensor([]).to(torch.float32).to('cpu')
 with torch.no_grad():
     with env.begin() as txn:
 
-        for i in range(1, video_number+1, 100):
+        for i in tqdm(range(1, video_number+1, 100)):
             if i != (video_number-video_number%100+1):
                 all_videos = np.zeros((100, 5, 3, 224, 224))
                 max_step = 100
