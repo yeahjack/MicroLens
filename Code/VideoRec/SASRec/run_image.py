@@ -34,8 +34,8 @@ video_freeze_paras_before = 152
 mode = 'train' # train test
 item_tower = 'image' # modal, text, image, video, id
 
-epoch = 50
-load_ckpt_name = 'None'
+epoch = 150
+load_ckpt_name = 'epoch-50.pt'
 # load_ckpt_name = 'epoch-200.pt'
 
 weight_decay = 0.1
@@ -68,7 +68,7 @@ for batch_size in batch_size_list:
                         drop_rate, weight_decay, max_seq_len)
 
                 run_py = "CUDA_VISIBLE_DEVICES='0,1,2,3,4,5' \
-                        torchrun --nproc_per_node=1 --master_port 1128 main.py \
+                        torchrun --nproc_per_node=6 --master_port 1128 main.py \
                         --root_data_dir {} --root_model_dir {} --dataset {} --behaviors {} --text_data {}  --image_data {} --video_data {}\
                         --mode {} --item_tower {} --load_ckpt_name {} --label_screen {} --logging_num {} --save_step {}\
                         --testing_num {} --weight_decay {} --drop_rate {} --batch_size {} --lr {} --embedding_dim {}\

@@ -26,10 +26,10 @@ transform = transforms.Compose([
 
 # save all images as a lmdb database, which would be extracted in the training phase.
 def generate_image_lmdb():
-	image_folder = '/hpc2hdd/home/yxu409/MicroLens/Dataset/Microlens-50k/MicroLens-50k_covers/' # to input
+	image_folder = '/hpc2hdd/home/yxu409/MicroLens/Dataset/Microlens-100k/MicroLens-100k_covers/' # to input
 	all_image = os.listdir(image_folder)
 	image_num = len(all_image)
-	lmdb_path = '/hpc2hdd/home/yxu409/MicroLens/Dataset/Microlens-50k/MicroLens-50k_covers_lmdb/' # to input
+	lmdb_path = '/hpc2hdd/home/yxu409/MicroLens/Dataset/Microlens-100k/MicroLens-100k_covers_lmdb/' # to input
 	isdir = os.path.isdir(lmdb_path)
 	lmdb_env = lmdb.open(lmdb_path, subdir=isdir, map_size=image_num * np.zeros((3, 224, 224)).nbytes*10,
 		readonly=False, meminit=False, map_async=True)
@@ -60,9 +60,9 @@ def generate_video_lmdb(pretrain_path, video_path, frame_no):
 	feature_extractor = VideoMAEImageProcessor(configuration)
 	feature_extractor = feature_extractor.from_pretrained(pretrain_path)
 
-	frames_folder = '/hpc2hdd/home/yxu409/MicroLens/Dataset/Microlens-50k/MicroLens-50k_frames_interval_1_number_5/' # a folder that restores frames of videos
+	frames_folder = '/hpc2hdd/home/yxu409/MicroLens/Dataset/Microlens-100k/MicroLens-100k_frames_interval_1_number_5/' # a folder that restores frames of videos
 	# {video1-1.jpg, video1-2.jpg, video1-3.jpg, video1-4.jpg, video1-5.jpg} refer to 5 frames extracted from video1
-	lmdb_path = '/hpc2hdd/home/yxu409/MicroLens/Dataset/Microlens-50k/MicroLens-50k_frames_interval_1_number_5_lmdb/' # to input
+	lmdb_path = '/hpc2hdd/home/yxu409/MicroLens/Dataset/Microlens-100k/MicroLens-100k_frames_interval_1_number_5_lmdb/' # to input
 
 	all_video = [x.replace('.mp4', '.jpg') for x in os.listdir(video_path)]
 	video_num = len(all_video)
@@ -98,7 +98,7 @@ def generate_video_lmdb(pretrain_path, video_path, frame_no):
 generate_image_lmdb()
 
 pretrain_path = '/hpc2hdd/home/yxu409/MicroLens/MicroLens/root_models/pretrained_models/videomae-base/' # to input
-video_path = '/hpc2hdd/home/yxu409/MicroLens/Dataset/Microlens-50k/MicroLens-50k_videos'
+video_path = '/hpc2hdd/home/yxu409/MicroLens/Dataset/Microlens-100k/MicroLens-100k_videos/'
 # for frame_no in [1, 2, 3, 4, 5]:
 for frame_no in [1,2,3,4,5]:
 	generate_video_lmdb(pretrain_path, video_path, frame_no)

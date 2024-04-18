@@ -2,17 +2,17 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 root_data_dir = ' /hpc2hdd/home/yxu409/MicroLens/Dataset/'
-root_model_dir = '/hpc2hdd/home/yxu409/MicroLens/MicroLens/root_models/'
+root_model_dir = '/hpc2hdd/home/yxu409/MicroLens/MicroLens/root_models'
 
-dataset = 'Microlens-50k'
-tag = 'MicroLens-50k'
+dataset = 'Microlens-100k'
+tag = 'MicroLens-100k'
 behaviors = tag + '_pairs.tsv'
-text_data = tag + '_title.csv'
-image_data = tag + '_covers.lmdb'
+text_data = tag + '_title_en.csv'
+image_data = tag + '_covers_lmdb'
 frame_interval = 1
 frame_no = 5
 # video_data = tag + '_ks_fi'+str(frame_interval)+'_fn'+str(frame_no)+'_frames.lmdb'
-video_data = 'MicroLens-50k_frames_interval_1_number_5.lmdb'
+video_data = 'MicroLens-100k_frames_interval_1_number_5_lmdb'
 max_seq_len_list = [10]
 
 logging_num = 10
@@ -23,7 +23,7 @@ image_resize = 224
 max_video_no = 19738 # 34321 for 10wu, 91717 for 100wu
 
 text_model_load = 'bert-base-uncased' # 'bert-base-cn' 
-image_model_load = 'vit-base-mae' # 'vit-b-32-clip'
+image_model_load = 'vit-mae-base' # 'vit-b-32-clip'
 
 # last 2 layer of trms
 text_freeze_paras_before = 165
@@ -46,7 +46,7 @@ mvit-base-16(0/5), mvit-base-16x4(0/5), mvit-base-32x3: 9999/30 326/30 192/30 0/
 slowfast-50: 9999/120 270/120 153/60 0/20 0/20-scratch
 slowfast16x8-101: 9999/120 576/120 153/25 0/15 0/15-scratch
 '''
-video_model_load = 'x3d-s' # mvit-base-32x3 slowfast-50 slowfast16x8-101
+video_model_load = 'slowfast-50' # mvit-base-32x3 slowfast-50 slowfast16x8-101
 video_freeze_paras_before = 0 # 326 270 576
 batch_size_list = [40] # 30 120 120
 
@@ -54,7 +54,7 @@ mode = 'train' # train test
 item_tower = 'video' # modal, text, image, video, id
 
 epoch = 100
-load_ckpt_name = 'epoch-50.pt'
+load_ckpt_name = 'None'
 # load_ckpt_name = 'epoch-47.pt'
 
 weight_decay = 0.1
@@ -104,8 +104,8 @@ for batch_size in batch_size_list:
                 #         text_fine_tune_lr, image_fine_tune_lr, video_fine_tune_lr, 
                 #         scheduler, scheduler_gap, scheduler_alpha, max_video_no,
                 #         version)
-                run_py = "CUDA_VISIBLE_DEVICES='0,1,2,3,4,5' \
-                        torchrun --nproc_per_node=1 --master_port 1128 main.py \
+                run_py = "CUDA_VISIBLE_DEVICES='0,1,2,3,4,5,6,7' \
+                        torchrun --nproc_per_node=8 --master_port 1128 main.py \
                         --root_data_dir {} --root_model_dir {} --dataset {} --behaviors {} --text_data {}  --image_data {} --video_data {}\
                         --mode {} --item_tower {} --load_ckpt_name {} --label_screen {} --logging_num {} --save_step {}\
                         --testing_num {} --weight_decay {} --drop_rate {} --batch_size {} --lr {} --embedding_dim {}\
