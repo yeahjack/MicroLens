@@ -1,3 +1,4 @@
+import argparse
 from warnings import simplefilter
 from transformers import logging
 logging.set_verbosity_warning()
@@ -11,7 +12,7 @@ import time
 import torch
 import random
 import subprocess
-
+import wandb
 import numpy as np
 import torch.optim as optim
 import torch.distributed as dist
@@ -40,6 +41,10 @@ from utils.metrics import get_item_text_score, get_item_id_score, get_item_image
 
 os.environ['TOKENIZERS_PARALLELISM'] = 'false'
 scaler = torch.cuda.amp.GradScaler()
+
+
+
+
 
 def setup_seed(seed):
     '''
@@ -159,7 +164,7 @@ def train(args, model_dir, Log_file, Log_screen, start_time, local_rank):
         if 'video-mae' in args.video_model_load:
             Log_file.info('load video mae model...')
             configuration = VideoMAEConfig(num_frames=args.frame_no)
-            video_model_load = os.path.abspath(os.path.join(args.root_model_dir, 'pretrained_models', 'videomae_base'))
+            video_model_load = os.path.abspath(os.path.join(args.root_model_dir, 'pretrained_models', 'videomae-base'))
             video_model = VideoMAEModel.from_pretrained(video_model_load, config = configuration)
         elif 'r3d18' in args.video_model_load:
             Log_file.info('load r3d18 model...')
@@ -216,7 +221,8 @@ def train(args, model_dir, Log_file, Log_screen, start_time, local_rank):
         elif 'slowfast16x8-101' in args.video_model_load:
             Log_file.info('load slowfast16x8-101 model...')
             video_model = slowfast_16x8_r101_50_50(pretrained=False)
-            video_model.load_state_dict(torch.load('SLOWFAST_16x8_R101_50_50.pyth'), strict=False)
+            # video_model.load_state_dict(torch.load('SLOWFAST_16x8_R101_50_50.pyth'), strict=False)
+            video_model.load_state_dict(torch.load('/hpc2hdd/home/yxu409/MicroLens/MicroLens/root_models/pretrained_models/SLOWFAST_16x8_R101_50_50.pyth'), strict=False)
             # video_model = torch.hub.load('./pytorchvideo_rs', model='slowfast_16x8_r101_50_50', source='local', pretrained=True)
             # video_model = torch.hub.load('./pytorchvideo-main', model='slowfast_16x8_r101_50_50', source='local', pretrained=False)
 
@@ -575,6 +581,8 @@ def train(args, model_dir, Log_file, Log_screen, start_time, local_rank):
     Log_file.info('\n')
     Log_file.info('%' * 90)
     Log_file.info('max eval Hit10 {:0.5f}  in epoch {}'.format(max_eval_value * 100, max_epoch-1))
+    if int(os.environ['RANK'])==0: 
+        wandb.run.summary["maxHit"] = max_eval_value * 100
     Log_file.info('early stop in epoch {}'.format(early_stop_epoch))
     Log_file.info('the End')
     Log_screen.info('{} train end in epoch {}'.format(args.label_screen, early_stop_epoch))
@@ -612,7 +620,8 @@ def eval(now_epoch, max_epoch, early_stop_epoch, max_eval_value, early_stop_coun
 
     valid_Hit10, nDCG10 = eval_model(model, user_history, users_eval, item_scoring, batch_size, \
         args, item_num, Log_file, mode, pop_prob_list, local_rank, now_epoch)
-
+    if int(os.environ['RANK'])==0: 
+        wandb.log({'valid_Hit10': valid_Hit10, 'nDCG10': nDCG10, 'epoch': now_epoch})
     report_time_eval(eval_start_time, Log_file)
     Log_file.info('')
     need_break = False
@@ -630,19 +639,28 @@ def eval(now_epoch, max_epoch, early_stop_epoch, max_eval_value, early_stop_coun
 
     return max_eval_value, max_epoch, early_stop_epoch, early_stop_count, need_break
 
+    
 def main():
     args = parse_args()
-    print(args)
+    
+   
     #print("test here")
     # ============== Distributed Computation Config ==============
     local_rank = int(os.environ['RANK'])
-    #print('local_rank:', local_rank)
+    print('local_rank:', local_rank)
     torch.cuda.set_device(local_rank)
     dist.init_process_group(backend='nccl')
     
     # ============== Experiment and Logging Config ===============
     setup_seed(42 + dist.get_rank())  # magic number
-
+    if local_rank ==0: 
+        wandb.init(
+        project="videorec",
+        tags='microlens',
+        config=vars(args)
+        )
+        args=argparse.Namespace(**wandb.config)
+    print(args)
     assert args.item_tower in ['modal', 'text', 'image', 'id', 'video']
     dir_label =  str(args.behaviors).strip().split('.')[0] + '_'  + str(args.item_tower)
     

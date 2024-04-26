@@ -35,7 +35,7 @@ mode = 'train' # train test
 item_tower = 'image' # modal, text, image, video, id
 
 epoch = 150
-load_ckpt_name = 'epoch-50.pt'
+load_ckpt_name = 'None'
 # load_ckpt_name = 'epoch-200.pt'
 
 weight_decay = 0.1
