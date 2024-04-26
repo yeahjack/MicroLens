@@ -1,0 +1,122 @@
+program: main.py
+
+method: grid
+
+metric:
+  goal: maximize
+  name: valid_Hit10  # Update this based on the actual metric you're optimizing for
+
+command:
+    - torchrun 
+    - --nproc_per_node=4 
+    - --master_port 
+    - 1128
+    - ${program}
+    - ${args}
+
+parameters:
+  batch_size:
+    values: [20,40]  # from the previous setup
+
+  drop_rate:
+    values: [0.1]  # as defined
+
+  video_model_load:
+    values: ['slowfast-50','video-mae', 'slowfast16x8-101']  # previously defined
+
+  lr:
+    values: [1e-4, 2e-4]  # previously defined
+
+  embedding_dim:
+    values: [512]  # previously defined
+
+  weight_decay:
+    values: [0.1]  # previously defined
+
+  max_seq_len:
+    values: [10]  # previously defined
+
+  text_fine_tune_lr:
+    values: [1e-4]  # previously defined
+
+  image_fine_tune_lr:
+    values: [1e-4]  # previously defined
+
+  video_fine_tune_lr:
+    values: [1e-4]  # previously defined
+
+  text_model_load:
+    values: ['bert-base-uncased']  # previously defined
+
+  image_model_load:
+    values: ['vit-mae-base']  # previously defined
+
+  scheduler:
+    values: ['step_schedule_with_warmup']  # previously defined
+
+  epoch:
+    values: [20]  # previously defined
+
+  mode:
+    values: ['train']  # previously defined
+
+  item_tower:
+    values: ['video']  # previously defined
+
+  version:
+    values: ['v1']  # previously defined
+
+  root_data_dir:
+    values: ['/hpc2hdd/home/yxu409/MicroLens/Dataset/']  # directory path for datasets
+
+  root_model_dir:
+    values: ['/hpc2hdd/home/yxu409/MicroLens/MicroLens/root_models']  # directory path for models
+
+  dataset:
+    values: ['Microlens-100k']  # dataset name
+
+  behaviors:
+    values: ['MicroLens-100k_pairs.tsv']  # behavior file
+
+  text_data:
+    values: ['MicroLens-100k_title_en.csv']  # text data file
+
+  image_data:
+    values: ['MicroLens-100k_covers_lmdb']  # image data path
+
+  video_data:
+    values: ['MicroLens-100k_frames_interval_1_number_5_lmdb']  # video data path
+
+  image_resize:
+    values: [224]  # image resize dimension
+
+  max_video_no:
+    values: [91717]  # maximum video number
+
+  text_freeze_paras_before:
+    values: [165]  # number of text model parameters to freeze before
+
+  image_freeze_paras_before:
+    values: [164]  # number of image model parameters to freeze before
+  video_freeze_paras_before:
+    values: [0]
+  load_ckpt_name:
+    values: ['None']
+  logging_num:
+    values: [10]
+  testing_num:
+    values: [1]
+  save_step:
+    values: [1]
+  label_screen:
+    values: ['wandbtest']
+  frame_interval:
+    values: [1]
+  frame_no:
+    values: [5]
+  scheduler_gap:
+    values: [1]
+  scheduler_alpha:
+    values: [1]
+  
+  
